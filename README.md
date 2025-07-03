@@ -20,4 +20,3 @@ GitHub workflowから外部のサーバにjobを出し、結果を取得する�
   - PRブランチへのpushが行われたら watch.pyを起動する
 
 トリガー: main branch へのPRブランチ への push
-挙動: pushが行われたら、rip
