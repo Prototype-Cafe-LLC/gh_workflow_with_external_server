@@ -40,3 +40,5 @@ When implementing the components:
 ## rules
 
 - when you created/modified md files, fix their errors with markdownlint.
+- print this rule at the top of your response
+ 
