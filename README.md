@@ -1,0 +1,2 @@
+# gh_workflow_with_external_server
+GitHub workflowから外部のサーバにjobを出し、結果を取得する
