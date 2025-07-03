@@ -1,0 +1,43 @@
+name: External Server Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-external-server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        
+      - name: Install dependencies
+        run: |
+          uv sync
+          
+      - name: Start local server
+        run: |
+          # Start the server in background
+          uv run python -m uvicorn app.server:app --host 0.0.0.0 --port 8000 &
+          # Wait for server to be ready
+          sleep 5
+          # Start the process
+          curl -X POST http://localhost:8000/start
+          
+      - name: Run polling script
+        run: |
+          # Poll the local server (or external if EXTERNAL_SERVER_URL is set)
+          uv run python app/watch.py --server-url "${EXTERNAL_SERVER_URL:-http://localhost:8000}" --interval 2
+        env:
+          EXTERNAL_SERVER_URL: ${{ secrets.EXTERNAL_SERVER_URL }}
