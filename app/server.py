@@ -1,7 +1,6 @@
 """HTTP server with state management for GitHub workflow testing."""
 
 import asyncio
-import random
 from datetime import datetime
 from enum import Enum
 from typing import Optional
@@ -53,12 +52,11 @@ class ServerState:
         try:
             # Status is already in-progress from start_transition
             
-            # Wait 5-15 seconds
-            wait_time = random.uniform(5, 15)
-            await asyncio.sleep(wait_time)
+            # Wait 2 minutes (120 seconds) as per requirements
+            await asyncio.sleep(120)
             
-            # Randomly transition to pass or fail (80% pass, 20% fail)
-            self.status = Status.PASS if random.random() > 0.2 else Status.FAIL
+            # Transition to pass (as per requirements)
+            self.status = Status.PASS
             
         except asyncio.CancelledError:
             # Reset to none if cancelled
@@ -81,7 +79,12 @@ async def get_status():
 
 @app.post("/start")
 async def start_process():
-    """Start the status transition process."""
+    """Start the status transition process.
+    
+    Starts a 1-minute job and transitions status:
+    - Immediately: none → in-progress
+    - After 2 minutes: in-progress → pass
+    """
     try:
         await state.start_transition()
         return {"message": "Process started", "status": state.status}
