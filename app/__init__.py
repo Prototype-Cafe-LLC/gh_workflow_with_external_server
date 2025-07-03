@@ -1,0 +1,1 @@
+"""GitHub workflow external server test package."""

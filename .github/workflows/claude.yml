@@ -1,0 +1,34 @@
+name: External Server Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-external-server:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        
+      - name: Install dependencies
+        run: |
+          uv sync
+          
+      - name: Run polling script
+        run: |
+          # In real usage, this would point to your external server
+          # For testing, you might use: --server-url https://your-server.com
+          uv run python app/watch.py --server-url "${EXTERNAL_SERVER_URL:-http://localhost:8000}"
+        env:
+          EXTERNAL_SERVER_URL: ${{ secrets.EXTERNAL_SERVER_URL }}
