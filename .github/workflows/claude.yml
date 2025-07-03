@@ -25,10 +25,18 @@ jobs:
         run: |
           uv sync
           
+      - name: Start local server
+        run: |
+          # Start the server in background
+          uv run python -m uvicorn app.server:app --host 0.0.0.0 --port 8000 &
+          # Wait for server to be ready
+          sleep 5
+          # Start the process
+          curl -X POST http://localhost:8000/start
+          
       - name: Run polling script
         run: |
-          # In real usage, this would point to your external server
-          # For testing, you might use: --server-url https://your-server.com
-          uv run python app/watch.py --server-url "${EXTERNAL_SERVER_URL:-http://localhost:8000}"
+          # Poll the local server (or external if EXTERNAL_SERVER_URL is set)
+          uv run python app/watch.py --server-url "${EXTERNAL_SERVER_URL:-http://localhost:8000}" --interval 2
         env:
           EXTERNAL_SERVER_URL: ${{ secrets.EXTERNAL_SERVER_URL }}
